@@ -4,6 +4,7 @@ from .exportaMdUtils import fixaSintaxiGitHub
 from .exportaMaterialUtils import (
     calculaCredits, calculaEtiquetes, calculaTitol)
 from .exportaHelpers import desa_md, ufsEquivalentsA
+from .models import MaterialMaterial
 
 
 def creaCarpeta(uf):
@@ -150,11 +151,25 @@ def creaReadMeDeUF(uf):
     pinned = list(uf.materialmaterial_set.filter(pinned=True))
     if (pinned):
         md_splited.append("")
-        md_splited.append("Material indexat")
+        md_splited.append("**Material indexat**")
         for m in pinned:
             carpeta = CarpetaReadmeMaterial(m)
             cami = "/".join(carpeta)
             md_splited.append(f"* [{m.titol}](/{cami})")
+
+    equivalents = [u for u in ufsEquivalentsA(uf) if u != uf]
+    if bool(equivalents):
+        md_splited.append("")
+        md_splited.append("**UF's equivalents on potser hi "
+                          "trobaràs més exercicis**")
+        for m in equivalents:
+            carpeta = carpetaUF(uf)
+            cami = "/".join(carpeta)
+            md_splited.append(
+                f"* [{uf.codi} "
+                f"({uf.mp.nom} - "
+                f"{uf.nom})]"
+                f"(/{cami})")
 
     md = "\r\n".join(md_splited)
     cami = carpetaReadmeUF(uf)
@@ -192,7 +207,7 @@ def exportaMaterial(m):
 
     # cooked_md, imatges = extreuImatges(cooked_md)
     # desa_imatges(m, imatges)
-    # cooked_md = substitueixPathsAntics(cooked_md)
+    cooked_md = substitueixPathsAntics(cooked_md)
     cooked_md = fixaSintaxiGitHub(cooked_md)
 
     titol_md = calculaTitol(m)
@@ -205,3 +220,30 @@ def exportaMaterial(m):
     tot_el_cami = os.path.join(settings.EXPORT_DIR, *cami)
 
     desa_md(md, tot_el_cami)
+
+
+def substitueixPathsAntics(md):
+    """
+    Substituir: http://uf.ctrl-alt-d.net/material/mostra/145/taula-dobjectes
+    Substituir: https://uf.ctrl-alt-d.net/material/mostra/145/taula-dobjectes
+    Per: /DAW/... (path del material)
+    """
+
+    targets = ["http://uf.ctrl-alt-d.net/material/mostra/",
+               "https://uf.ctrl-alt-d.net/material/mostra/"]
+
+    for target in targets:
+        posicio = md.find(target)
+        while posicio != -1:
+            posicio += len(target)
+            aux_str = md[posicio:posicio+10]
+            aux_int = int(aux_str.split("/")[0])
+            material = MaterialMaterial.objects.get(pk=aux_int)
+            cami = CarpetaReadmeMaterial(material)
+            cami_url = "/".join(cami)
+            old_url = f"{target}{aux_int}/{material.slug}"
+            nova_url = f"/{cami_url}"
+            md = md.replace(old_url, nova_url)
+            posicio = md.find(target)
+
+    return md
