@@ -2,7 +2,7 @@ from django.conf import settings
 import os
 from .exportaMdUtils import fixaSintaxiGitHub
 from .exportaMaterialUtils import (
-    calculaCredits, calculaEtiquetes, calculaTitol)
+    calculaCredits, calculaEtiquetes, calculaTitol, calculaTipus)
 from .exportaHelpers import desa_md, ufsEquivalentsA
 from .models import MaterialMaterial
 
@@ -162,13 +162,13 @@ def creaReadMeDeUF(uf):
         md_splited.append("")
         md_splited.append("**UF's equivalents on potser hi "
                           "trobaràs més exercicis**")
-        for m in equivalents:
-            carpeta = carpetaUF(uf)
+        for uf_equivalent in equivalents:
+            carpeta = carpetaUF(uf_equivalent)
             cami = "/".join(carpeta)
             md_splited.append(
-                f"* [{uf.codi} "
-                f"({uf.mp.nom} - "
-                f"{uf.nom})]"
+                f"* [{uf_equivalent.codi} "
+                f"({uf_equivalent.mp.nom} - "
+                f"{uf_equivalent.nom})]"
                 f"(/{cami})")
 
     md = "\r\n".join(md_splited)
@@ -211,10 +211,11 @@ def exportaMaterial(m):
     cooked_md = fixaSintaxiGitHub(cooked_md)
 
     titol_md = calculaTitol(m)
+    tipus_md = calculaTipus(m)
     credits_md = calculaCredits(m)
     etiquestes_md = calculaEtiquetes(m)
 
-    md = titol_md + cooked_md + credits_md + etiquestes_md
+    md = titol_md + tipus_md + cooked_md + etiquestes_md + credits_md
 
     cami = CarpetaReadmeMaterial(m)
     tot_el_cami = os.path.join(settings.EXPORT_DIR, *cami)
