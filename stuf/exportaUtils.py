@@ -15,11 +15,35 @@ def creaCarpeta(uf):
     creaCarpetaUF(uf)
 
 
+def carpetaArrel():
+    return []
+
+
+def carpetaReadmeArrel():
+    return carpetaArrel() + ["readme.md"]
+
+
 def creaCarpetaArrel():
-    tot_el_cami = settings.EXPORT_DIR
+    cami = carpetaArrel()
+    tot_el_cami = os.path.join(settings.EXPORT_DIR, *cami)
     if not os.path.exists(tot_el_cami):
         print(f"creant {tot_el_cami}")
         os.mkdir(tot_el_cami)
+    creaReadMeDeArrel()
+
+
+def creaReadMeDeArrel():
+    md_splited = []
+    md_splited.append("# Repo d'exercicis d'FP Informàtica")
+    md_splited.append("## FPUF Cuadern d'exercicis")
+    md_splited.append("")
+    md_splited.append("Exercicis i material de cicles formatius Informàtica")
+    md_splited.append("")
+
+    md = "\r\n".join(md_splited)
+    cami = carpetaReadmeArrel()
+    tot_el_cami = os.path.join(settings.EXPORT_DIR, *cami)
+    desa_md(md, tot_el_cami)
 
 
 def extreuImatges(cooked_md):

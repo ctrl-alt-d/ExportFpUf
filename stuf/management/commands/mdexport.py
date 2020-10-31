@@ -1,6 +1,6 @@
 from django.core.management.base import BaseCommand, CommandError
 from stuf.exporta import run
-import traceback 
+import traceback
 
 
 class Command(BaseCommand):
@@ -10,7 +10,7 @@ class Command(BaseCommand):
         try:
             run()
         except Exception as e:
-            traceback.print_exc() 
+            traceback.print_exc()
             raise CommandError(f"Error exportant: {e}")
 
         self.stdout.write(self.style.SUCCESS(

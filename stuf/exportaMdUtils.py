@@ -42,6 +42,9 @@ def fixaBlocs(md):
         #
         if not in_block:
             new_md.append(line)
+    
+    if in_block:
+        new_md.append("```")
 
     return "\r\n".join(new_md) + "\r\n"
 
