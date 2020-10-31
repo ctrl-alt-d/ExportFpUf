@@ -1,10 +1,21 @@
 from .models import MaterialMaterial
-from .exportaUtils import creaCarpeta, extreuImatges, desa_imatges, desa_md
+from .exportaUtils import (
+    creaCarpeta,
+    extreuImatges,
+    desa_imatges,
+    desa_md)
+from .exportaMdUtils import fixaSintaxiGitHub
 
 
 def run():
     for m in MaterialMaterial.objects.all():
         creaCarpeta(m)
-        # nou_md, imatges = extreuImatges(m)
+
+        cooked_md = m.contingut
+
+        # cooked_md, imatges = extreuImatges(cooked_md)
         # desa_imatges(m, imatges)
-        # desa_md(m, nou_md)
+        # cooked_md = substitueixPathsAntics(cooked_md)
+        cooked_md = fixaSintaxiGitHub(cooked_md)
+
+        desa_md(m, cooked_md)

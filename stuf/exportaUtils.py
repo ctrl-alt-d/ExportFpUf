@@ -17,8 +17,8 @@ def creaCarpeta(m):
     creaCarpetaMaterial(m)
 
 
-def extreuImatges(m):
-    # return nou_md, imatges
+def extreuImatges(cooked_md):
+    # return cooked_md, imatges
     pass
 
 
@@ -26,8 +26,12 @@ def desa_imatges(m, imatges):
     pass
 
 
-def desa_md(m, nou_md):
-    pass
+def desa_md(m, cooked_md):
+    cami = CarpetaReadmeMaterial(m)
+    tot_el_cami = os.path.join(settings.EXPORT_DIR, *cami)
+    with open(tot_el_cami, "w") as text_file:
+        print(cooked_md, file=text_file)
+
 
 # Cicle ----------------------------------
 
@@ -91,6 +95,10 @@ def creaReadMeDeUF(tot_el_cami, uf):
 
 def carpetaMaterial(material):
     return carpetaUF(material.uf) + [material.slug]
+
+
+def CarpetaReadmeMaterial(material):
+    return carpetaMaterial(material) + ["readme.md"]
 
 
 def creaCarpetaMaterial(material):
