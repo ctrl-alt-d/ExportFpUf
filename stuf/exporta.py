@@ -1,5 +1,6 @@
 from .models import MaterialMaterial
-from .exportaUtils import creaCarpeta, creaCarpetaMaterial, ufsEquivalentsA
+from .exportaUtils import creaCarpeta, creaCarpetaMaterial
+from .exportaHelpers import ufsEquivalentsA
 
 
 def run():

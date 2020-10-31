@@ -3,6 +3,7 @@ import os
 from .exportaMdUtils import fixaSintaxiGitHub
 from .exportaMaterialUtils import (
     calculaCredits, calculaEtiquetes, calculaTitol)
+from .exportaHelpers import desa_md, ufsEquivalentsA
 
 
 def creaCarpeta(uf):
@@ -29,11 +30,6 @@ def desa_imatges(m, imatges):
     pass
 
 
-def desa_md(md, tot_el_cami):
-    with open(tot_el_cami, "w") as text_file:
-        print(md, file=text_file)
-
-
 # Cicle ----------------------------------
 
 
@@ -51,11 +47,24 @@ def creaCarpetaCicle(cicle):
     if not os.path.exists(tot_el_cami):
         print(f"creant {tot_el_cami}")
         os.mkdir(tot_el_cami)
-        creaReadMeDeCicle(tot_el_cami, cicle)
+    creaReadMeDeCicle(cicle)
 
 
-def creaReadMeDeCicle(tot_el_cami, cicle):
-    pass
+def creaReadMeDeCicle(cicle):
+    md_splited = []
+    md_splited.append(f"# {cicle.codi}")
+    md_splited.append(f"## {cicle.nom}")
+    md_splited.append(f"### {cicle.familia.nom}")
+    md_splited.append("")
+    md_splited.append("Exercicis i material de cicles formatius"
+                      f" {cicle.familia.nom}")
+    md_splited.append("")
+    md_splited.append(f"###### {cicle.familia.etiqueta} {cicle.etiqueta}")
+
+    md = "\r\n".join(md_splited)
+    cami = carpetaReadmeCicle(cicle)
+    tot_el_cami = os.path.join(settings.EXPORT_DIR, *cami)
+    desa_md(md, tot_el_cami)
 
 
 # MP ---------------------------
@@ -74,11 +83,28 @@ def creaCarpetaMP(mp):
     if not os.path.exists(tot_el_cami):
         print(f"creant {tot_el_cami}")
         os.mkdir(tot_el_cami)
-        creaReadMeDeMP(tot_el_cami, mp)
+    creaReadMeDeMP(mp)
 
 
-def creaReadMeDeMP(tot_el_cami, mp):
-    pass
+def creaReadMeDeMP(mp):
+    md_splited = []
+    md_splited.append(f"# {mp.cicle.codi} - {mp.nom}")
+    md_splited.append(f"## {mp.cicle.nom}")
+    md_splited.append(f"### {mp.cicle.familia.nom}")
+    md_splited.append("")
+    md_splited.append("Exercicis i material de cicles formatius"
+                      f" {mp.cicle.familia.nom}")
+    md_splited.append("")
+    md_splited.append(f"Exercicis de {mp.nom}")
+    md_splited.append("")
+    md_splited.append(f"###### {mp.cicle.familia.etiqueta}"
+                      f" {mp.cicle.etiqueta}"
+                      f" {mp.etiqueta}")
+
+    md = "\r\n".join(md_splited)
+    cami = CarpetaReadmeMP(mp)
+    tot_el_cami = os.path.join(settings.EXPORT_DIR, *cami)
+    desa_md(md, tot_el_cami)
 
 # UF ---------------------------
 
@@ -97,11 +123,44 @@ def creaCarpetaUF(uf):
     if not os.path.exists(tot_el_cami):
         print(f"creant {tot_el_cami}")
         os.mkdir(tot_el_cami)
-        creaReadMeDeUF(tot_el_cami, uf)
+    creaReadMeDeUF(uf)
 
 
-def creaReadMeDeUF(tot_el_cami, uf):
-    pass
+def creaReadMeDeUF(uf):
+    etiquetes = [
+        uf_equivalent.etiqueta
+        for uf_equivalent
+        in ufsEquivalentsA(uf)]
+    etiquetes_txt = " ".join(etiquetes)
+
+    md_splited = []
+    md_splited.append(f"# {uf.mp.cicle.codi} - {uf.mp.nom}")
+    md_splited.append(f"# {uf.nom}")
+    md_splited.append(f"## {uf.mp.cicle.nom}")
+    md_splited.append(f"### {uf.mp.cicle.familia.nom}")
+    md_splited.append("")
+    md_splited.append("Exercicis i material de cicles formatius"
+                      f" {uf.mp.cicle.familia.nom}")
+    md_splited.append("")
+    md_splited.append(f"Exercicis de {uf.nom}")
+    md_splited.append("")
+    md_splited.append(f"###### {uf.mp.cicle.familia.etiqueta}"
+                      f" {uf.mp.cicle.etiqueta} {etiquetes_txt}")
+
+    pinned = list(uf.materialmaterial_set.filter(pinned=True))
+    if (pinned):
+        md_splited.append("")
+        md_splited.append("Material indexat")
+        for m in pinned:
+            carpeta = CarpetaReadmeMaterial(m)
+            cami = "/".join(carpeta)
+            md_splited.append(f"* [{m.titol}](/{cami})")
+
+    md = "\r\n".join(md_splited)
+    cami = carpetaReadmeUF(uf)
+    tot_el_cami = os.path.join(settings.EXPORT_DIR, *cami)
+    desa_md(md, tot_el_cami)
+
 
 # Material ---------------------------
 
