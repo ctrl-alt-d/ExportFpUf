@@ -125,7 +125,8 @@ class MaterialColleccio(models.Model):
 
 class MaterialComentarimaterial(models.Model):
     material = models.ForeignKey('MaterialMaterial', models.DO_NOTHING)
-    perfil = models.ForeignKey('UsuarisPerfil', models.DO_NOTHING, blank=True, null=True)
+    perfil = models.ForeignKey(
+        'UsuarisPerfil', models.DO_NOTHING, blank=True, null=True)
     comentari = models.TextField()
     data = models.DateTimeField()
     comentari_html = models.TextField()
@@ -136,9 +137,11 @@ class MaterialComentarimaterial(models.Model):
 
 
 class MaterialImatgematerial(models.Model):
-    material = models.ForeignKey('MaterialMaterial', models.DO_NOTHING, blank=True, null=True)
+    material = models.ForeignKey(
+        'MaterialMaterial', models.DO_NOTHING, blank=True, null=True)
     imatge_url = models.CharField(max_length=200)
-    perfil = models.ForeignKey('UsuarisPerfil', models.DO_NOTHING, blank=True, null=True)
+    perfil = models.ForeignKey(
+        'UsuarisPerfil', models.DO_NOTHING, blank=True, null=True)
     data = models.DateTimeField()
 
     class Meta:
@@ -147,16 +150,19 @@ class MaterialImatgematerial(models.Model):
 
 
 class MaterialMaterial(models.Model):
-    colleccio = models.ForeignKey(MaterialColleccio, models.DO_NOTHING, blank=True, null=True)
+    colleccio = models.ForeignKey(
+        MaterialColleccio, models.DO_NOTHING, blank=True, null=True)
     titol = models.CharField(unique=True, max_length=200)
     slug = models.CharField(max_length=200)
     tipus = models.CharField(max_length=2)
     uf = models.ForeignKey('UfsUf', models.DO_NOTHING)
     contingut = models.TextField()
     esborrat = models.BooleanField()
-    autor = models.ForeignKey('UsuarisPerfil', models.DO_NOTHING, blank=True, null=True, related_name="autor_de")
+    autor = models.ForeignKey(
+        'UsuarisPerfil', models.DO_NOTHING, blank=True, null=True, related_name="autor_de")
     autor_txt = models.CharField(max_length=40)
-    editat_per = models.ForeignKey('UsuarisPerfil', models.DO_NOTHING, blank=True, null=True, related_name="editor_de")
+    editat_per = models.ForeignKey(
+        'UsuarisPerfil', models.DO_NOTHING, blank=True, null=True, related_name="editor_de")
     data_creacio = models.DateTimeField()
     data_edicio = models.DateTimeField()
     total_util_per_c = models.IntegerField()
@@ -186,7 +192,8 @@ class MaterialMaterialContinguts(models.Model):
 
 class MaterialMaterialResultatsAprenentatge(models.Model):
     material = models.ForeignKey(MaterialMaterial, models.DO_NOTHING)
-    resultataprenentatge = models.ForeignKey('UfsResultataprenentatge', models.DO_NOTHING)
+    resultataprenentatge = models.ForeignKey(
+        'UfsResultataprenentatge', models.DO_NOTHING)
 
     class Meta:
         managed = False
@@ -195,13 +202,15 @@ class MaterialMaterialResultatsAprenentatge(models.Model):
 
 
 class MaterialMaterialversio(models.Model):
-    original = models.ForeignKey(MaterialMaterial, models.DO_NOTHING, blank=True, null=True)
+    original = models.ForeignKey(
+        MaterialMaterial, models.DO_NOTHING, blank=True, null=True)
     titol = models.CharField(max_length=100)
     tipus = models.CharField(max_length=2)
     uf = models.ForeignKey('UfsUf', models.DO_NOTHING)
     contingut = models.TextField()
     contingut_diff = models.TextField()
-    editat_per = models.ForeignKey('UsuarisPerfil', models.DO_NOTHING, blank=True, null=True)
+    editat_per = models.ForeignKey(
+        'UsuarisPerfil', models.DO_NOTHING, blank=True, null=True)
     data_edicio = models.DateTimeField()
     resultats_aprenentatge_txt = models.CharField(max_length=100)
     continguts_txt = models.CharField(max_length=100)
@@ -337,6 +346,8 @@ class UfsUf(models.Model):
     slug = models.CharField(unique=True, max_length=50)
     data_modificacio = models.DateTimeField()
     etiqueta = models.CharField(max_length=50)
+    equivalents = models.ManyToManyField(
+        'UfsUF', related_name="ufs_em_consideren_equivalent")
 
     class Meta:
         managed = False
@@ -344,8 +355,10 @@ class UfsUf(models.Model):
 
 
 class UfsUfEquivalents(models.Model):
-    from_uf = models.ForeignKey(UfsUf, models.DO_NOTHING, related_name="equivalent_from")
-    to_uf = models.ForeignKey(UfsUf, models.DO_NOTHING, related_name="equivalent_to")
+    from_uf = models.ForeignKey(
+        UfsUf, models.DO_NOTHING, related_name="equivalent_from")
+    to_uf = models.ForeignKey(UfsUf, models.DO_NOTHING,
+                              related_name="equivalent_to")
 
     class Meta:
         managed = False
@@ -354,8 +367,10 @@ class UfsUfEquivalents(models.Model):
 
 
 class UfsUfequivalent(models.Model):
-    una_uf = models.ForeignKey(UfsUf, models.DO_NOTHING, related_name='UFEquivalentOrigen' )
-    uf_equivalent = models.ForeignKey(UfsUf, models.DO_NOTHING, related_name='UFEquivalentDesti' )
+    una_uf = models.ForeignKey(
+        UfsUf, models.DO_NOTHING, related_name='UFEquivalentOrigen')
+    uf_equivalent = models.ForeignKey(
+        UfsUf, models.DO_NOTHING, related_name='UFEquivalentDesti')
 
     class Meta:
         managed = False
@@ -384,7 +399,8 @@ class UfsocialMedalla(models.Model):
 
 
 class UfsocialMedallaeditor(models.Model):
-    medalla_ptr = models.OneToOneField(UfsocialMedalla, models.DO_NOTHING, primary_key=True)
+    medalla_ptr = models.OneToOneField(
+        UfsocialMedalla, models.DO_NOTHING, primary_key=True)
 
     class Meta:
         managed = False
@@ -392,7 +408,8 @@ class UfsocialMedallaeditor(models.Model):
 
 
 class UfsocialMedallafamiliamaster(models.Model):
-    medalla_ptr = models.OneToOneField(UfsocialMedalla, models.DO_NOTHING, primary_key=True)
+    medalla_ptr = models.OneToOneField(
+        UfsocialMedalla, models.DO_NOTHING, primary_key=True)
     familia = models.ForeignKey(UfsFamilia, models.DO_NOTHING)
 
     class Meta:
@@ -411,7 +428,8 @@ class UfsocialReputacio(models.Model):
 
 
 class UfsocialReputaciopertancar(models.Model):
-    reputacio_ptr = models.OneToOneField(UfsocialReputacio, models.DO_NOTHING, primary_key=True)
+    reputacio_ptr = models.OneToOneField(
+        UfsocialReputacio, models.DO_NOTHING, primary_key=True)
     material_titol = models.CharField(max_length=200)
     punts = models.IntegerField()
 
@@ -421,9 +439,12 @@ class UfsocialReputaciopertancar(models.Model):
 
 
 class UfsocialReputacioperutil(models.Model):
-    reputacio_ptr = models.OneToOneField(UfsocialReputacio, models.DO_NOTHING, primary_key=True)
-    perfil_otorga = models.ForeignKey('UsuarisPerfil', models.DO_NOTHING, blank=True, null=True)
-    material = models.ForeignKey(MaterialMaterial, models.DO_NOTHING, blank=True, null=True)
+    reputacio_ptr = models.OneToOneField(
+        UfsocialReputacio, models.DO_NOTHING, primary_key=True)
+    perfil_otorga = models.ForeignKey(
+        'UsuarisPerfil', models.DO_NOTHING, blank=True, null=True)
+    material = models.ForeignKey(
+        MaterialMaterial, models.DO_NOTHING, blank=True, null=True)
     material_titol = models.CharField(max_length=200)
     punts = models.IntegerField()
 
@@ -433,9 +454,12 @@ class UfsocialReputacioperutil(models.Model):
 
 
 class UfsocialReputacioperutilperduda(models.Model):
-    reputacio_ptr = models.OneToOneField(UfsocialReputacio, models.DO_NOTHING, primary_key=True)
-    perfil_otorga = models.ForeignKey('UsuarisPerfil', models.DO_NOTHING, blank=True, null=True)
-    material = models.ForeignKey(MaterialMaterial, models.DO_NOTHING, blank=True, null=True)
+    reputacio_ptr = models.OneToOneField(
+        UfsocialReputacio, models.DO_NOTHING, primary_key=True)
+    perfil_otorga = models.ForeignKey(
+        'UsuarisPerfil', models.DO_NOTHING, blank=True, null=True)
+    material = models.ForeignKey(
+        MaterialMaterial, models.DO_NOTHING, blank=True, null=True)
     material_titol = models.CharField(max_length=200)
     punts = models.IntegerField()
 
@@ -445,8 +469,10 @@ class UfsocialReputacioperutilperduda(models.Model):
 
 
 class UfsocialReputaciosocial(models.Model):
-    reputacio_ptr = models.OneToOneField(UfsocialReputacio, models.DO_NOTHING, primary_key=True)
-    material = models.ForeignKey(MaterialMaterial, models.DO_NOTHING, blank=True, null=True)
+    reputacio_ptr = models.OneToOneField(
+        UfsocialReputacio, models.DO_NOTHING, primary_key=True)
+    material = models.ForeignKey(
+        MaterialMaterial, models.DO_NOTHING, blank=True, null=True)
     material_titol = models.CharField(max_length=200)
     likes_acumulats = models.IntegerField()
     diferencial_likes_c = models.IntegerField()
@@ -487,7 +513,8 @@ class UsuarisPerfil(models.Model):
     nom_usuari = models.CharField(max_length=40)
     usuari = models.OneToOneField(AuthUser, models.DO_NOTHING)
     mostrar_correu = models.CharField(max_length=1)
-    darrera_uf_consultada = models.ForeignKey(UfsUf, models.DO_NOTHING, blank=True, null=True)
+    darrera_uf_consultada = models.ForeignKey(
+        UfsUf, models.DO_NOTHING, blank=True, null=True)
     rebre_butlleti = models.BooleanField()
     coneixe_m = models.TextField()
     reputacio_c = models.IntegerField()
@@ -497,6 +524,28 @@ class UsuarisPerfil(models.Model):
     class Meta:
         managed = False
         db_table = 'usuaris_perfil'
+
+    @property
+    def display_centre_to(self, usuari=None):
+        if (self.mostrar_centre_i_localitat == self.TOTHOM or
+            (bool(usuari) and self.mostrar_centre_i_localitat == self.USUARIS_REGISTRATS) or
+                (bool(usuari) and usuari == self)
+            ):
+            localitat = u"( {localitat} )".format(
+                localitat=self.localitat) if self.localitat else u""
+            return u"{centre} {localitat}".format(centre=self.centre, localitat=localitat)
+        else:
+            return u""
+
+    @property
+    def display_correu_to(self, usuari=None):
+        if (self.mostrar_correu == self.TOTHOM or
+            (bool(usuari) and self.mostrar_correu == self.USUARIS_REGISTRATS) or
+                (bool(usuari) and usuari == self)
+            ):
+            return u"{correu}".format(correu=self.usuari.email)
+        else:
+            return u""
 
 
 class UsuarisPerfilLesMevesUfs(models.Model):
