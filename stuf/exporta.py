@@ -1,26 +1,18 @@
 from .models import MaterialMaterial
-from .exportaUtils import (
-    creaCarpeta,
-    calculaCredits,
-    calculaTitol,
-    calculaEtiquetes,
-    desa_md)
-from .exportaMdUtils import fixaSintaxiGitHub
+from .exportaUtils import creaCarpeta, creaCarpetaMaterial, ufsEquivalentsA
 
 
 def run():
-    for m in MaterialMaterial.objects.filter(esborrat=False):
-        creaCarpeta(m)
 
-        cooked_md = m.contingut
+    #
+    tot_el_material = list(MaterialMaterial.objects.filter(esborrat=False))
+    totes_les_ufs = {e for m in tot_el_material for e in ufsEquivalentsA(m.uf)}
 
-        # cooked_md, imatges = extreuImatges(cooked_md)
-        # desa_imatges(m, imatges)
-        # cooked_md = substitueixPathsAntics(cooked_md)
-        cooked_md = fixaSintaxiGitHub(cooked_md)
+    #
+    for uf in totes_les_ufs:
+        creaCarpeta(uf)
 
-        titol_md = calculaTitol(m)
-        credits_md = calculaCredits(m)
-        etiquestes_md = calculaEtiquetes(m)
-
-        desa_md(m, titol_md + cooked_md + credits_md + etiquestes_md)
+    #
+    for m in tot_el_material:
+        creaCarpetaMaterial(m)
+        

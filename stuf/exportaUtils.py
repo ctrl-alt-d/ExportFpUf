@@ -1,21 +1,23 @@
 from django.conf import settings
 import os
-from .models import UfsUfEquivalents
+from .exportaMdUtils import fixaSintaxiGitHub
+from .exportaMaterialUtils import (
+    calculaCredits, calculaEtiquetes, calculaTitol)
 
 
-def creaCarpeta(m):
+def creaCarpeta(uf):
 
-    # carpeta arrel ---
+    creaCarpetaArrel()
+    creaCarpetaCicle(uf.mp.cicle)
+    creaCarpetaMP(uf.mp)
+    creaCarpetaUF(uf)
+
+
+def creaCarpetaArrel():
     tot_el_cami = settings.EXPORT_DIR
     if not os.path.exists(tot_el_cami):
         print(f"creant {tot_el_cami}")
         os.mkdir(tot_el_cami)
-
-    # resta de carpetes ---
-    creaCarpetaCicle(m.uf.mp.cicle)
-    creaCarpetaMP(m.uf.mp)
-    creaCarpetaUF(m.uf)
-    creaCarpetaMaterial(m)
 
 
 def extreuImatges(cooked_md):
@@ -27,11 +29,9 @@ def desa_imatges(m, imatges):
     pass
 
 
-def desa_md(m, cooked_md):
-    cami = CarpetaReadmeMaterial(m)
-    tot_el_cami = os.path.join(settings.EXPORT_DIR, *cami)
+def desa_md(md, tot_el_cami):
     with open(tot_el_cami, "w") as text_file:
-        print(cooked_md, file=text_file)
+        print(md, file=text_file)
 
 
 # Cicle ----------------------------------
@@ -39,6 +39,10 @@ def desa_md(m, cooked_md):
 
 def carpetaCicle(cicle):
     return [cicle.codi]
+
+
+def carpetaReadmeCicle(cicle):
+    return carpetaCicle(cicle) + ["readme.md"]
 
 
 def creaCarpetaCicle(cicle):
@@ -60,6 +64,10 @@ def carpetaMP(mp):
     return carpetaCicle(mp.cicle) + [mp.codi]
 
 
+def CarpetaReadmeMP(mp):
+    return carpetaMP(mp) + ["readme.md"]
+
+
 def creaCarpetaMP(mp):
     cami = carpetaMP(mp)
     tot_el_cami = os.path.join(settings.EXPORT_DIR, *cami)
@@ -77,6 +85,10 @@ def creaReadMeDeMP(tot_el_cami, mp):
 
 def carpetaUF(uf):
     return carpetaMP(uf.mp) + [uf.codi]
+
+
+def carpetaReadmeUF(uf):
+    return carpetaUF(uf) + ["readme.md"]
 
 
 def creaCarpetaUF(uf):
@@ -109,66 +121,28 @@ def creaCarpetaMaterial(material):
         print(f"creant {tot_el_cami}")
         os.mkdir(tot_el_cami)
         creaReadMeDeMaterial(tot_el_cami, material)
+    exportaMaterial(material)
 
 
 def creaReadMeDeMaterial(tot_el_cami, material):
     pass
 
-# Credits ------
 
+def exportaMaterial(m):
+    cooked_md = m.contingut
 
-def calculaCredits(material):
-    md_splited = ["", "---", ""]
+    # cooked_md, imatges = extreuImatges(cooked_md)
+    # desa_imatges(m, imatges)
+    # cooked_md = substitueixPathsAntics(cooked_md)
+    cooked_md = fixaSintaxiGitHub(cooked_md)
 
-    # Autor
-    perfil = material.autor.nom_usuari  # display_centre_to()
-    moment = material.data_creacio.strftime("%Y.%m.%d %H:%M:%S")
-    md_splited.append(f"#### Autor: {perfil} {moment}")
+    titol_md = calculaTitol(m)
+    credits_md = calculaCredits(m)
+    etiquestes_md = calculaEtiquetes(m)
 
-    # Darrera edicio
-    if bool(material.editat_per):
-        perfil = material.editat_per.nom_usuari  # display_centre_to()
-        moment = material.data_edicio.strftime("%Y.%m.%d %H:%M:%S")
-        md_splited.append(f"#### Editat per: {perfil} {moment}")
+    md = titol_md + cooked_md + credits_md + etiquestes_md
 
-    # Llicència
-    md_splited.append(
-        "###### [CC BY](https://creativecommons.org/licenses/by/4.0/) ![CC BY](https://licensebuttons.net/l/by/3.0/80x15.png)")
+    cami = CarpetaReadmeMaterial(m)
+    tot_el_cami = os.path.join(settings.EXPORT_DIR, *cami)
 
-    return "\r\n".join(md_splited)
-
-# Titol -----
-
-
-def calculaTitol(material):
-    md_splited = []
-    titol = f"# {material.titol}"
-    md_splited.append(titol)
-    md_splited.append("")
-
-    return "\r\n".join(md_splited)
-
-# Etiquetes -----
-
-
-def get_etiquetes(uf):
-    equivalents = list(
-        [x.to_uf for x in UfsUfEquivalents.objects.filter(from_uf=uf)]) + [uf]
-    ufs = " ".join(set([x.etiqueta for x in equivalents]))
-    mps = " ".join(set([x.mp.etiqueta for x in equivalents]))
-    cicles = " ".join(set([x.mp.cicle.etiqueta for x in equivalents]))
-    families = " ".join(
-        set([x.mp.cicle.familia.etiqueta for x in equivalents]))
-    return "{} {} {} {}".format(families, cicles, mps, ufs)
-
-
-def calculaEtiquetes(material):
-    etiquetes = get_etiquetes(material.uf)
-    md_splited = []
-    md_splited.append("")
-    md_splited.append("---")
-    md_splited.append("")
-    md_splited.append(etiquetes)
-    md_splited.append("")
-
-    return "\r\n".join(md_splited)
+    desa_md(md, tot_el_cami)
